@@ -1,0 +1,65 @@
+{
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "built-ogc-signal",
+        "options": {}
+      },
+      "name": "Webhook Trigger",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 1,
+      "position": [250, 300]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "string": [
+            {
+              "value1": "={{$json[\"lender\"]}}",
+              "operation": "contains",
+              "value2": "Built Partner Bank"
+            }
+          ]
+        }
+      },
+      "name": "Is Lender a Built Partner?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 1,
+      "position": [450, 300]
+    },
+    {
+      "parameters": {
+        "model": "gpt-4-turbo",
+        "prompt": "=Write a hyper-personalized outreach email to a developer at {{$json[\"address\"]}}. Mention that their lender {{$json[\"lender\"]}} is already on Built, which means we can automate their first draw request immediately to save them 4+ days of paperwork lag.",
+        "options": {}
+      },
+      "name": "AI Personalizer",
+      "type": "n8n-nodes-base.openAi",
+      "typeVersion": 1,
+      "position": [650, 200]
+    }
+  ],
+  "connections": {
+    "Webhook Trigger": {
+      "main": [
+        [
+          {
+            "node": "Is Lender a Built Partner?",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Is Lender a Built Partner?": {
+      "main": [
+        [
+          {
+            "node": "AI Personalizer",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  }
+}
